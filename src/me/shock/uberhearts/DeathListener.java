@@ -13,7 +13,7 @@ public class DeathListener implements Listener
 {
 
 	public HashMap<String, Long> lives = new HashMap<String, Long>();
-	String uber = ChatColor.RED + "[" + ChatColor.WHITE + "UberHearts" + ChatColor.RED + "]" + ChatColor.WHITE + ": ";
+	String uber = ChatColor.RED + "[" + ChatColor.GRAY + "UberHearts" + ChatColor.RED + "]" + ChatColor.WHITE + ": ";
 	
     public Main plugin;
 	
@@ -27,16 +27,25 @@ public class DeathListener implements Listener
 	{
 		Player player = event.getPlayer();
 		long maxLives = plugin.getConfig().getLong("max-lives");
+		if(!(lives.containsKey(player.getName())))
+		{
+			lives.put(player.getName(), maxLives - 1);
+		}
 		long currentLives = lives.get(player.getName());
 
 		/**
 		 * Handles when a player has already respawned once.
 		 * Handling it in reverse order I guess.
 		 */
-		if(lives.containsKey(player))
+		if(lives.containsKey(player.getName()))
 		{
-			player.setMaxHealth((int) currentLives - 1);
+			int currentHealth = player.getMaxHealth();
+			int newHealth = (int) (currentHealth - 1);
+			player.setMaxHealth(newHealth); // error here for some reason.
+			lives.put(player.getName(), currentLives - 1);
 		}
+		
+		// Should never happen, but always have else statements.
 		else
 		{
 			lives.put(player.getName(), maxLives - 1);
@@ -52,8 +61,12 @@ public class DeathListener implements Listener
 		long maxLives = plugin.getConfig().getLong("max-lives");
 
 		Player player = event.getPlayer();
-		lives.put(player.getName(), maxLives);
+		
+		if(!(lives.containsKey(player.getName())))
+		{
+		    lives.put(player.getName(), maxLives);
+		}
 		long currentLives = lives.get(player.getName());
-		player.sendMessage(uber + "You have " + currentLives + " left.");
+		player.sendMessage(uber + "You have " + currentLives + " lives left.");
 	}
 }
